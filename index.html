@@ -16,6 +16,9 @@
           <option value="theme-dark">Dark</option>
           <option value="theme-ocean">Ocean</option>
           <option value="theme-autumn">Autumn</option>
+          <option value="theme-forest">Forest</option>
+          <option value="theme-sunset">Sunset</option>
+          <option value="theme-slate">Slate</option>
         </select>
       </label>
     </header>
@@ -24,32 +27,25 @@
         <div class="content-controls">
           <label class="panel-heading" for="contentArea">Content Area</label>
           <div class="content-buttons">
-            <button type="button" id="confirmContent">Confirm Paste</button>
-            <button type="button" id="unlockContent" disabled>Unlock</button>
+            <button type="button" id="confirmContent">Load</button>
           </div>
         </div>
-        <textarea id="contentArea" class="content-area" placeholder="Paste the article or source text here...">Sample Article: The Scroll Test
-
-Paragraph 1: This workspace keeps the content area at a fixed height while allowing longform text to be pasted without affecting the overall layout. Even when the content stretches well beyond the visible region, the scrollbars ensure the editing space remains tidy.
-
-Paragraph 2: To prove this, we intentionally include multiple paragraphs of text. As you continue to add more material, the textarea will not expand vertically; instead, the scrollbar will activate and let you browse through the entire article seamlessly.
-
-Paragraph 3: Designers frequently test this scenario to confirm that pasting essays, transcripts, or aggregated research does not cause the page to jump.
-
-Paragraph 4: Keep adding text and you will notice the scroll position indicator shrinking accordingly, providing a clear signal that overflow is handled within the textarea itself.
-
-Paragraph 5: This final paragraph pushes the total content well past the default height, guaranteeing that anyone inspecting the interface can immediately see the scroll-enabled behavior.</textarea>
+        <textarea
+          id="contentArea"
+          class="content-area"
+          placeholder="Paste the article or source text here..."
+        ></textarea>
         <div id="contentDisplay" class="content-display" hidden aria-live="polite" tabindex="-1"></div>
       </section>
       <section class="panel right-panel">
         <div class="translations">
           <div class="translation-label" aria-live="polite">
             <span id="translationTitle1" class="label-title">Translated Text 1</span>
-            <p id="translationText1" class="label-body" aria-live="polite">Line 1: Demonstrating a four-line block. Line 2: This text should stay within the fixed height. Line 3: Even when the content is verbose, it will not stretch the card. Line 4: Everything beyond this point is hidden.</p>
+            <p id="translationText1" class="label-body" aria-live="polite"></p>
           </div>
           <div class="translation-label" aria-live="polite">
             <span id="translationTitle2" class="label-title">Translated Text 2</span>
-            <p id="translationText2" class="label-body" aria-live="polite">Example sentence one. Example sentence two. Example sentence three shows that the area can handle more copy. Example sentence four wraps up the sample without altering the layout.</p>
+            <p id="translationText2" class="label-body" aria-live="polite"></p>
           </div>
         </div>
         <div class="chat">

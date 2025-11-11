@@ -73,6 +73,43 @@ body.theme-autumn {
   --assistant-highlight: #ffe9d3;
 }
 
+body.theme-forest {
+  --bg-color: #e4f2e7;
+  --surface-color: #f7fcf8;
+  --panel-color: #edf7ef;
+  --border-color: #a5d6a7;
+  --text-color: #1f3b2c;
+  --muted-text: #2f593d;
+  --accent-color: #2e7d32;
+  --label-bg: #d8f3dc;
+  --assistant-highlight: #c0e8cb;
+}
+
+body.theme-sunset {
+  --bg-color: #fff1f0;
+  --surface-color: #fff7f6;
+  --panel-color: #ffe9e4;
+  --border-color: #ffc5b9;
+  --text-color: #5a2015;
+  --muted-text: #a3472a;
+  --accent-color: #f97316;
+  --label-bg: #ffe0d3;
+  --assistant-highlight: #ffd4c2;
+}
+
+body.theme-slate {
+  color-scheme: dark;
+  --bg-color: #101421;
+  --surface-color: #131a2a;
+  --panel-color: #1c2537;
+  --border-color: #2c384f;
+  --text-color: #f0f4ff;
+  --muted-text: #b5c1d8;
+  --accent-color: #4f83ff;
+  --label-bg: #1f2b45;
+  --assistant-highlight: #2a3b5d;
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -325,26 +362,30 @@ textarea {
 .chat-input {
   display: flex;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .chat-input textarea {
   flex: 1;
   min-height: 3rem;
-  max-height: 8rem;
-  resize: vertical;
+  max-height: 3rem;
+  resize: none;
 }
 
 .chat-input button {
   border: none;
   border-radius: 0.65rem;
-  padding: 0.65rem 1.4rem;
+  padding: 0 1.4rem;
   background: var(--accent-color);
   color: white;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-input button:hover {

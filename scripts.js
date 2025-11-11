@@ -1,6 +1,14 @@
 (function () {
   const picker = document.getElementById('themePicker');
-  const themes = ['theme-light', 'theme-dark', 'theme-ocean', 'theme-autumn'];
+  const themes = [
+    'theme-light',
+    'theme-dark',
+    'theme-ocean',
+    'theme-autumn',
+    'theme-forest',
+    'theme-sunset',
+    'theme-slate',
+  ];
   const body = document.body;
 
   const applyTheme = (theme) => {
@@ -17,12 +25,14 @@
 
   const config = window.APP_CONFIG || {};
   const confirmContentButton = document.getElementById('confirmContent');
-  const unlockContentButton = document.getElementById('unlockContent');
   const contentArea = document.getElementById('contentArea');
   const contentDisplay = document.getElementById('contentDisplay');
   const googleApiKey = config.googleApiKey || '';
   const googleTranslateEndpoint =
     config.googleTranslationUrl || 'https://translation.googleapis.com/language/translate/v2';
+  const openaiApiKey = config.openaiApiKey || '';
+  const openaiChatUrl = config.openaiChatUrl || 'https://api.openai.com/v1/chat/completions';
+  const openaiModel = config.openaiModel || 'gpt-4o-mini';
   const targetLanguages = (config.translationTargets || ['fr', 'es']).slice(0, 2);
   const translationLabels =
     (config.translationLabels && config.translationLabels.slice(0, 2)) ||
@@ -269,7 +279,7 @@
   };
 
   const lockContent = () => {
-    if (!contentArea || !contentDisplay || !confirmContentButton || !unlockContentButton) {
+    if (!contentArea || !contentDisplay || !confirmContentButton) {
       return;
     }
     if (!contentArea.value.trim()) {
@@ -281,33 +291,33 @@
     contentArea.classList.add('content-area-locked');
     contentArea.hidden = true;
     contentDisplay.hidden = false;
-    confirmContentButton.disabled = true;
-    unlockContentButton.disabled = false;
+    confirmContentButton.textContent = 'Unload';
     contentLocked = true;
     contentDisplay.focus();
   };
 
   const unlockContent = () => {
-    if (!contentArea || !contentDisplay || !confirmContentButton || !unlockContentButton) {
+    if (!contentArea || !contentDisplay || !confirmContentButton) {
       return;
     }
     contentArea.hidden = false;
     contentDisplay.hidden = true;
     contentArea.readOnly = false;
     contentArea.classList.remove('content-area-locked');
-    confirmContentButton.disabled = false;
-    unlockContentButton.disabled = true;
+    confirmContentButton.textContent = 'Load';
     contentLocked = false;
     activeSentenceIndex = -1;
     contentArea.focus();
   };
 
   if (confirmContentButton) {
-    confirmContentButton.addEventListener('click', lockContent);
-  }
-
-  if (unlockContentButton) {
-    unlockContentButton.addEventListener('click', unlockContent);
+    confirmContentButton.addEventListener('click', () => {
+      if (contentLocked) {
+        unlockContent();
+      } else {
+        lockContent();
+      }
+    });
   }
 
   if (contentDisplay) {
@@ -368,14 +378,60 @@
     return sentenceButtons[activeSentenceIndex].dataset.sentence || '';
   };
 
-  const generateAssistantReply = (prompt) => {
+  const callOpenAIChat = async (sentence, prompt) => {
+    const response = await fetch(openaiChatUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiApiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiModel,
+        temperature: 0.2,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant helping users analyze and refine highlighted sentences within an article.',
+          },
+          {
+            role: 'user',
+            content: `Highlighted sentence:\n"${sentence}"\n\nUser question:\n${prompt}`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      const message = payload.error?.message || `HTTP ${response.status} - ${response.statusText}`;
+      throw new Error(message);
+    }
+
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content?.trim();
+    if (!content) {
+      throw new Error('Empty response from OpenAI');
+    }
+    return content;
+  };
+
+  const generateAssistantReply = async (prompt) => {
     const contextSentence = getCurrentSentence();
     if (!contextSentence) {
       return `No sentence is currently highlighted. Your message was: "${prompt}"`;
     }
-    return `Context — "${contextSentence}"
 
-Echoing your request: "${prompt}". A real AI service would analyze this sentence using the highlighted text above.`;
+    if (!openaiApiKey) {
+      return `Provide an OpenAI API key in config.js to enable contextual chat.\n\nSentence: "${contextSentence}"\nYour message: "${prompt}"`;
+    }
+
+    try {
+      const aiResponse = await callOpenAIChat(contextSentence, prompt);
+      return aiResponse;
+    } catch (error) {
+      return `Chat request failed: ${error.message}`;
+    }
   };
 
   const submitChat = () => {
@@ -391,9 +447,11 @@ Echoing your request: "${prompt}". A real AI service would analyze this sentence
     chatInput.value = '';
     chatInput.focus();
 
-    setTimeout(() => {
-      appendMessage('assistant', generateAssistantReply(value));
-    }, 200);
+    generateAssistantReply(value)
+      .then((reply) => appendMessage('assistant', reply))
+      .catch((error) => {
+        appendMessage('assistant', `Chat error: ${error.message}`);
+      });
   };
 
   if (chatForm) {
