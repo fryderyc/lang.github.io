@@ -352,6 +352,108 @@
   const chatInput = document.getElementById('chatInput');
   const chatLog = document.getElementById('chatLog');
 
+  const renderChatMarkdown = (text) => {
+    if (!text) {
+      return '';
+    }
+
+    const escapeHtml = (value) =>
+      value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const formatInline = (value) =>
+      escapeHtml(value)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const htmlParts = [];
+    let listType = null;
+    let insideCodeBlock = false;
+    let codeBuffer = [];
+
+    const closeList = () => {
+      if (listType === 'ul') {
+        htmlParts.push('</ul>');
+      } else if (listType === 'ol') {
+        htmlParts.push('</ol>');
+      }
+      listType = null;
+    };
+
+    const finalizeCodeBlock = () => {
+      if (!insideCodeBlock) {
+        return;
+      }
+      const codeHtml = escapeHtml(codeBuffer.join('\n'));
+      htmlParts.push(`<pre><code>${codeHtml}</code></pre>`);
+      codeBuffer = [];
+      insideCodeBlock = false;
+    };
+
+    lines.forEach((rawLine) => {
+      const line = rawLine || '';
+      if (line.trim().startsWith('```')) {
+        if (insideCodeBlock) {
+          finalizeCodeBlock();
+        } else {
+          closeList();
+          insideCodeBlock = true;
+          codeBuffer = [];
+        }
+        return;
+      }
+
+      if (insideCodeBlock) {
+        codeBuffer.push(line);
+        return;
+      }
+
+      const unorderedMatch = line.match(/^\s*[-*]\s+(.*)$/);
+      const orderedMatch = line.match(/^\s*\d+\.\s+(.*)$/);
+
+      if (unorderedMatch) {
+        if (listType !== 'ul') {
+          closeList();
+          htmlParts.push('<ul>');
+          listType = 'ul';
+        }
+        htmlParts.push(`<li>${formatInline(unorderedMatch[1])}</li>`);
+        return;
+      }
+
+      if (orderedMatch) {
+        if (listType !== 'ol') {
+          closeList();
+          htmlParts.push('<ol>');
+          listType = 'ol';
+        }
+        htmlParts.push(`<li>${formatInline(orderedMatch[1])}</li>`);
+        return;
+      }
+
+      if (line.trim() === '') {
+        closeList();
+        htmlParts.push('<br />');
+        return;
+      }
+
+      closeList();
+      htmlParts.push(`<p>${formatInline(line)}</p>`);
+    });
+
+    finalizeCodeBlock();
+    closeList();
+
+    const html = htmlParts.join('');
+    return html || `<p>${formatInline(text)}</p>`;
+  };
+
   const appendMessage = (role, text) => {
     if (!chatLog) {
       return;
@@ -363,8 +465,9 @@
     roleLabel.className = 'chat-role';
     roleLabel.textContent = role === 'user' ? 'You' : 'Assistant';
 
-    const messageBody = document.createElement('p');
-    messageBody.textContent = text;
+    const messageBody = document.createElement('div');
+    messageBody.className = 'chat-text';
+    messageBody.innerHTML = renderChatMarkdown(text);
 
     wrapper.append(roleLabel, messageBody);
     chatLog.append(wrapper);

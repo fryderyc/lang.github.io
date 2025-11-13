@@ -359,6 +359,44 @@ textarea {
   color: var(--muted-text);
 }
 
+.chat-text {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chat-message p {
+  margin: 0;
+}
+
+.chat-message ul,
+.chat-message ol {
+  margin: 0 0 0.5rem 1.25rem;
+  padding-left: 1rem;
+}
+
+.chat-message li {
+  margin-bottom: 0.25rem;
+}
+
+.chat-message pre {
+  background: #f5f5f5;
+  padding: 0.6rem;
+  border-radius: 0.4rem;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.chat-message code {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+}
+
 .chat-input {
   display: flex;
   gap: 0.75rem;
