@@ -367,6 +367,10 @@ textarea {
   gap: 0.35rem;
 }
 
+.chat-message.typing .chat-text {
+  gap: 0;
+}
+
 .chat-message p {
   margin: 0;
 }
@@ -395,6 +399,44 @@ textarea {
   padding: 0.1rem 0.35rem;
   border-radius: 0.3rem;
   font-size: 0.9rem;
+}
+
+.chat-typing {
+  display: inline-flex;
+  gap: 0.35rem;
+  min-height: 1rem;
+  align-items: flex-end;
+}
+
+.chat-typing span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  animation: chatTyping 1.3s infinite ease-in-out;
+}
+
+.chat-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chat-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes chatTyping {
+  0% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-0.2rem);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
 }
 
 .chat-input {

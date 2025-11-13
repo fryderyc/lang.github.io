@@ -474,6 +474,36 @@
     chatLog.scrollTop = chatLog.scrollHeight;
   };
 
+  const showTypingIndicator = () => {
+    if (!chatLog) {
+      return () => {};
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-message assistant typing';
+
+    const roleLabel = document.createElement('span');
+    roleLabel.className = 'chat-role';
+    roleLabel.textContent = 'Assistant';
+
+    const messageBody = document.createElement('div');
+    messageBody.className = 'chat-text';
+
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chat-typing';
+    typingIndicator.setAttribute('aria-label', 'Assistant is typing');
+    typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+
+    messageBody.append(typingIndicator);
+    wrapper.append(roleLabel, messageBody);
+    chatLog.append(wrapper);
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    return () => {
+      wrapper.remove();
+    };
+  };
+
   const getCurrentSentence = () => {
     if (activeSentenceIndex === -1 || !sentenceButtons[activeSentenceIndex]) {
       return '';
@@ -550,9 +580,15 @@
     chatInput.value = '';
     chatInput.focus();
 
+    const hideTypingIndicator = showTypingIndicator();
+
     generateAssistantReply(value)
-      .then((reply) => appendMessage('assistant', reply))
+      .then((reply) => {
+        hideTypingIndicator();
+        appendMessage('assistant', reply);
+      })
       .catch((error) => {
+        hideTypingIndicator();
         appendMessage('assistant', `Chat error: ${error.message}`);
       });
   };
