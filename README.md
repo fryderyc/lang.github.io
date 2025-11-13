@@ -24,7 +24,9 @@ Translate Workspace is a browser-only tool for translators and reviewers. Paste 
 translate4/
 ├── index.html      # Layout and DOM structure
 ├── styles.css      # Base styles + theme definitions
-├── scripts.js      # Sentence parsing, translations, chat, caching, UI wiring
+├── theme.js        # Theme picker wiring
+├── content.js      # Sentence parsing, translations, caching, content controls
+├── chat.js         # Chat UI, markdown rendering, and OpenAI calls
 ├── config.js       # Local configuration (API keys, endpoints, language labels)
 └── README.md
 ```
